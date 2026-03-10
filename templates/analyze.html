@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze Dataset - Comment Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-bar text-primary"></i> Dataset Sentiment Analysis
+            </h2>
+            
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            <!-- Analysis Form -->
+            {% if not show_results %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-play-circle"></i> Start Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <p>Click the button below to analyze all comments from the predefined dataset.</p>
+                    <form method="POST" action="{{ url_for('analyze') }}">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-analytics"></i> Analyze Dataset
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Analysis Results -->
+            {% if show_results %}
+            
+            <!-- Metadata Info -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Dataset Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Source File:</strong> {{ metadata.source_file }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Total Comments:</strong> {{ metadata.total_loaded }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Valid Comments:</strong> {{ metadata.valid_comments }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentiment Distribution -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Sentiment Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="sentiment-stat positive-stat">
+                                        <h4>{{ distribution.positive }}</h4>
+                                        <p>Positive Comments ({{ distribution.positive_percent }}%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="sentiment-stat negative-stat">
+                                        <h4>{{ distribution.negative }}</h4>
+                                        <p>Negative Comments ({{ distribution.negative_percent }}%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="sentiment-stat neutral-stat">
+                                        <h4>{{ distribution.neutral }}</h4>
+                                        <p>Neutral Comments ({{ distribution.neutral_percent }}%)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Word Clouds -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-cloud"></i> Word Cloud Visualizations</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#allCloud">All Comments</a>
+                        </li>
+                        {% if wordclouds.positive %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#positiveCloud">Positive</a>
+                        </li>
+                        {% endif %}
+                        {% if wordclouds.negative %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#negativeCloud">Negative</a>
+                        </li>
+                        {% endif %}
+                        {% if wordclouds.neutral %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#neutralCloud">Neutral</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="allCloud">
+                            {% if wordclouds.all %}
+                            <img src="data:image/png;base64,{{ wordclouds.all }}" class="img-fluid" alt="All Comments Word Cloud">
+                            {% else %}
+                            <p>No word cloud available</p>
+                            {% endif %}
+                        </div>
+                        {% if wordclouds.positive %}
+                        <div class="tab-pane fade" id="positiveCloud">
+                            <img src="data:image/png;base64,{{ wordclouds.positive }}" class="img-fluid" alt="Positive Word Cloud">
+                        </div>
+                        {% endif %}
+                        {% if wordclouds.negative %}
+                        <div class="tab-pane fade" id="negativeCloud">
+                            <img src="data:image/png;base64,{{ wordclouds.negative }}" class="img-fluid" alt="Negative Word Cloud">
+                        </div>
+                        {% endif %}
+                        {% if wordclouds.neutral %}
+                        <div class="tab-pane fade" id="neutralCloud">
+                            <img src="data:image/png;base64,{{ wordclouds.neutral }}" class="img-fluid" alt="Neutral Word Cloud">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Results -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Sample Analysis Results (First 10)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Comment</th>
+                                    <th>Sentiment</th>
+                                    <th>Score</th>
+                                    <th>Positive Words</th>
+                                    <th>Negative Words</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results[:10] %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ result.original_text[:80] }}{% if result.original_text|length > 80 %}...{% endif %}</td>
+                                    <td>
+                                        {% if result.sentiment == 'Positive' %}
+                                        <span class="badge bg-success">{{ result.sentiment }}</span>
+                                        {% elif result.sentiment == 'Negative' %}
+                                        <span class="badge bg-danger">{{ result.sentiment }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ result.sentiment }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ result.score }}</td>
+                                    <td>{{ result.positive_count }}</td>
+                                    <td>{{ result.negative_count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{{ url_for('results') }}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> View All Results
+                    </a>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mb-4">
+                <form method="POST" action="{{ url_for('analyze') }}" class="d-inline">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-redo"></i> Analyze Again
+                    </button>
+                </form>
+            </div>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if show_results %}
+<script>
+    // Create sentiment distribution chart
+    const ctx = document.getElementById('sentimentChart');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                data: [{{ distribution.positive }}, {{ distribution.negative }}, {{ distribution.neutral }}],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(108, 117, 125, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Sentiment Distribution'
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

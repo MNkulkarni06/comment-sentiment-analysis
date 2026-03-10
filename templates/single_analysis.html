@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Single Comment Analysis - Comment Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-comment text-success"></i> Single Comment Analysis
+            </h2>
+
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            <!-- Input Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-keyboard"></i> Enter Your Comment</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('single_analysis') }}">
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment Text:</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="5" 
+                                      placeholder="Enter your comment here for sentiment analysis..."
+                                      required>{{ comment if comment else '' }}</textarea>
+                            <div class="form-text">
+                                Enter any text comment and click analyze to get instant sentiment results
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-search"></i> Analyze Comment
+                        </button>
+                        <button type="reset" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            {% if show_result %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-poll"></i> Analysis Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <h6>Original Comment:</h6>
+                            <div class="alert alert-light">
+                                {{ result.original_text }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card text-center 
+                                {% if result.sentiment == 'Positive' %}border-success
+                                {% elif result.sentiment == 'Negative' %}border-danger
+                                {% else %}border-secondary{% endif %}">
+                                <div class="card-body">
+                                    <h6 class="card-title">Sentiment</h6>
+                                    <h3 class="
+                                        {% if result.sentiment == 'Positive' %}text-success
+                                        {% elif result.sentiment == 'Negative' %}text-danger
+                                        {% else %}text-secondary{% endif %}">
+                                        {% if result.sentiment == 'Positive' %}
+                                        <i class="fas fa-smile"></i>
+                                        {% elif result.sentiment == 'Negative' %}
+                                        <i class="fas fa-frown"></i>
+                                        {% else %}
+                                        <i class="fas fa-meh"></i>
+                                        {% endif %}
+                                        {{ result.sentiment }}
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h6 class="card-title">Sentiment Score</h6>
+                                    <h3 class="
+                                        {% if result.score > 0 %}text-success
+                                        {% elif result.score < 0 %}text-danger
+                                        {% else %}text-secondary{% endif %}">
+                                        {{ result.score }}
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="card text-center border-success">
+                                <div class="card-body">
+                                    <h6 class="card-title">Positive Words</h6>
+                                    <h3 class="text-success">{{ result.positive_count }}</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="card text-center border-danger">
+                                <div class="card-body">
+                                    <h6 class="card-title">Negative Words</h6>
+                                    <h3 class="text-danger">{{ result.negative_count }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matched Words -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Matched Sentiment Words</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success"><i class="fas fa-plus-circle"></i> Positive Words Found:</h6>
+                            {% if matched_words.positive_words %}
+                            <div class="word-tags">
+                                {% for word in matched_words.positive_words %}
+                                <span class="badge bg-success me-1 mb-1">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No positive words found</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-danger"><i class="fas fa-minus-circle"></i> Negative Words Found:</h6>
+                            {% if matched_words.negative_words %}
+                            <div class="word-tags">
+                                {% for word in matched_words.negative_words %}
+                                <span class="badge bg-danger me-1 mb-1">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No negative words found</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Word Cloud -->
+            {% if wordcloud %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-cloud"></i> Word Cloud Visualization</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="data:image/png;base64,{{ wordcloud }}" class="img-fluid" alt="Comment Word Cloud">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Processed Tokens -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs"></i> Processed Tokens</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Tokens After Preprocessing:</strong> {{ result.tokens|length }}</p>
+                    <div class="word-tags">
+                        {% for token in result.tokens %}
+                        <span class="badge bg-secondary me-1 mb-1">{{ token }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+
+            <!-- Example Comments -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Example Comments</h5>
+                </div>
+                <div class="card-body">
+                    <p>Try these example comments:</p>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action example-comment" 
+                           data-comment="This product is absolutely amazing and works perfectly!">
+                            <i class="fas fa-smile text-success"></i> This product is absolutely amazing and works perfectly!
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action example-comment"
+                           data-comment="Terrible quality and very disappointed with this purchase.">
+                            <i class="fas fa-frown text-danger"></i> Terrible quality and very disappointed with this purchase.
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action example-comment"
+                           data-comment="The product arrived on time and matches the description.">
+                            <i class="fas fa-meh text-secondary"></i> The product arrived on time and matches the description.
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Handle example comment clicks
+    document.querySelectorAll('.example-comment').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const comment = this.getAttribute('data-comment');
+            document.getElementById('comment').value = comment;
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}

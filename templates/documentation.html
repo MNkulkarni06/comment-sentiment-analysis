@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - Comment Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-book text-primary"></i> System Documentation
+            </h2>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-smile fa-3x text-success mb-2"></i>
+                                <h4>{{ doc_info.positive_words_count }}</h4>
+                                <p class="text-muted">Positive Words</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-frown fa-3x text-danger mb-2"></i>
+                                <h4>{{ doc_info.negative_words_count }}</h4>
+                                <p class="text-muted">Negative Words</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-book fa-3x text-info mb-2"></i>
+                                <h4>{{ doc_info.total_lexicon_words }}</h4>
+                                <p class="text-muted">Total Lexicon</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-ban fa-3x text-secondary mb-2"></i>
+                                <h4>{{ doc_info.stop_words_count }}</h4>
+                                <p class="text-muted">Stop Words</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">User Guide</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Getting Started:</h6>
+                    <ol>
+                        <li><strong>Dataset Analysis:</strong>
+                            <ul>
+                                <li>Navigate to "Analyze Dataset" from the menu</li>
+                                <li>Click "Analyze Dataset" button to process all comments</li>
+                                <li>View results including sentiment distribution and word clouds</li>
+                            </ul>
+                        </li>
+                        <li><strong>Single Comment Analysis:</strong>
+                            <ul>
+                                <li>Go to "Single Comment" page</li>
+                                <li>Enter your comment in the text area</li>
+                                <li>Click "Analyze Comment" to see instant results</li>
+                            </ul>
+                        </li>
+                        <li><strong>View Results:</strong>
+                            <ul>
+                                <li>Access "Results" page for detailed analysis</li>
+                                <li>Use search and filter options to explore data</li>
+                                <li>Click on individual results for detailed views</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Text Preprocessing</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Preprocessing Steps:</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cleaning</strong></td>
+                                <td>Remove URLs, emails, punctuation, and numbers</td>
+                                <td>"Visit www.example.com!" → "Visit example com"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Normalization</strong></td>
+                                <td>Convert text to lowercase</td>
+                                <td>"GREAT Product" → "great product"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tokenization</strong></td>
+                                <td>Split text into individual words</td>
+                                <td>"great product" → ["great", "product"]</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stop Word Removal</strong></td>
+                                <td>Remove common words with no sentiment value</td>
+                                <td>["the", "great", "product", "is"] → ["great", "product"]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Sentiment Classification</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Classification Rules:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Sentiment</th>
+                                    <th>Condition</th>
+                                    <th>Icon</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-success">
+                                    <td><strong>Positive</strong></td>
+                                    <td>Score > 0</td>
+                                    <td><i class="fas fa-smile fa-2x text-success"></i></td>
+                                    <td>"This is excellent and amazing" (Score: +2)</td>
+                                </tr>
+                                <tr class="table-danger">
+                                    <td><strong>Negative</strong></td>
+                                    <td>Score < 0</td>
+                                    <td><i class="fas fa-frown fa-2x text-danger"></i></td>
+                                    <td>"This is terrible and awful" (Score: -2)</td>
+                                </tr>
+                                <tr class="table-secondary">
+                                    <td><strong>Neutral</strong></td>
+                                    <td>Score = 0</td>
+                                    <td><i class="fas fa-meh fa-2x text-secondary"></i></td>
+                                    <td>"The product arrived on time" (Score: 0)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="mt-3">Score Calculation:</h6>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> Sentiment Score = (Positive Word Count) - (Negative Word Count)
+                        <br><br>
+                        <strong>Example:</strong><br>
+                        Comment: "This excellent product has poor quality"<br>
+                        Positive words: excellent (1)<br>
+                        Negative words: poor (1)<br>
+                        Score: 1 - 1 = 0 (Neutral)
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">API Documentation</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Available API Endpoints:</h6>
+                    
+                    <div class="api-endpoint mb-3">
+                        <h6 class="text-primary">POST /api/analyze</h6>
+                        <p><strong>Description:</strong> Analyze a single comment</p>
+                        <p><strong>Request Body:</strong></p>
+                        <pre><code>{
+  "comment": "Your comment text here"
+}</code></pre>
+                        <p><strong>Response:</strong></p>
+                        <pre><code>{
+  "sentiment": "Positive",
+  "score": 2,
+  "positive_count": 2,
+  "negative_count": 0,
+  "original_text": "Your comment text here",
+  "tokens": ["word1", "word2"]
+}</code></pre>
+                    </div>
+
+                    <div class="api-endpoint mb-3">
+                        <h6 class="text-primary">GET /api/dataset-stats</h6>
+                        <p><strong>Description:</strong> Get dataset statistics</p>
+                        <p><strong>Response:</strong></p>
+                        <pre><code>{
+  "total_comments": 40,
+  "metadata": {
+    "total_loaded": 40,
+    "valid_comments": 40,
+    "invalid_comments": 0,
+    "source_file": "comments.csv"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Limitations & Future Enhancements</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Current Limitations:</h6>
+                    <ul>
+                        <li>Does not detect sarcasm or irony</li>
+                        <li>Limited to English language</li>
+                        <li>Context-independent word matching</li>
+                        <li>Equal weight for all sentiment words</li>
+                        <li>No emotion-level detection</li>
+                    </ul>
+
+                    <h6 class="mt-3">Future Enhancements:</h6>
+                    <ul>
+                        <li>Multilingual support</li>
+                        <li>Context-aware analysis</li>
+                        <li>Sarcasm detection</li>
+                        <li>Emotion classification</li>
+                        <li>Real-time social media integration</li>
+                        <li>Advanced machine learning models</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

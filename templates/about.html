@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}About - Comment Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-info-circle text-primary"></i> About the Project
+            </h2>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Project Overview</h5>
+                </div>
+                <div class="card-body">
+                    <h4>Comment Sentiment Analysis Using Word Cloud-Based Lexicon</h4>
+                    <p class="lead">
+                        A lightweight and interpretable sentiment analysis system designed for academic use 
+                        and small-scale real-world applications.
+                    </p>
+                    <hr>
+                    <h6>Purpose</h6>
+                    <p>
+                        This system analyzes user-generated textual comments and classifies them into positive, 
+                        negative, or neutral sentiments using a lexicon-driven approach. The solution emphasizes 
+                        transparency, simplicity, and low computational requirements.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Key Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Lexicon-Based Analysis:</strong> Uses predefined positive and negative word dictionaries</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Text Preprocessing:</strong> Comprehensive text cleaning and normalization</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Three-Class Classification:</strong> Positive, Negative, and Neutral categories</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Word Cloud Visualization:</strong> Visual representation of frequent terms</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Dataset Analysis:</strong> Batch processing of multiple comments</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Single Comment Mode:</strong> Instant analysis for individual comments</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Statistical Reports:</strong> Detailed sentiment distribution metrics</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>User-Friendly Interface:</strong> Clean and intuitive web interface</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">System Architecture</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Core Modules:</h6>
+                    <ol>
+                        <li><strong>Data Loader Module:</strong> Handles loading and validation of comment datasets from CSV files</li>
+                        <li><strong>Text Preprocessing Module:</strong> Cleans, normalizes, tokenizes text and removes stop words</li>
+                        <li><strong>Sentiment Analysis Engine:</strong> Performs lexicon-based sentiment evaluation and classification</li>
+                        <li><strong>Word Cloud Generator:</strong> Creates visual word cloud representations based on sentiment</li>
+                        <li><strong>Flask Web Application:</strong> Provides user interface and handles routing</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Methodology</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Sentiment Analysis Process:</h6>
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h6>Input Collection</h6>
+                                <p>Comments are loaded from dataset or entered manually by users</p>
+                            </div>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-down"></i></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h6>Text Preprocessing</h6>
+                                <p>Cleaning, normalization, tokenization, and stop word removal</p>
+                            </div>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-down"></i></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h6>Lexicon Matching</h6>
+                                <p>Tokens are compared against positive and negative word dictionaries</p>
+                            </div>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-down"></i></div>
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h6>Score Calculation</h6>
+                                <p>Sentiment score = (Positive word count) - (Negative word count)</p>
+                            </div>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-down"></i></div>
+                        <div class="process-step">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <h6>Classification</h6>
+                                <p>Score > 0: Positive | Score < 0: Negative | Score = 0: Neutral</p>
+                            </div>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-down"></i></div>
+                        <div class="process-step">
+                            <div class="step-number">6</div>
+                            <div class="step-content">
+                                <h6>Visualization</h6>
+                                <p>Results displayed with charts, tables, and word clouds</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Technology Stack</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Backend Technologies:</h6>
+                            <ul>
+                                <li>Python 3.x</li>
+                                <li>Flask Web Framework</li>
+                                <li>WordCloud Library</li>
+                                <li>Matplotlib for visualizations</li>
+                                <li>CSV for data handling</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Frontend Technologies:</h6>
+                            <ul>
+                                <li>HTML5 & CSS3</li>
+                                <li>Bootstrap 5</li>
+                                <li>JavaScript</li>
+                                <li>Chart.js for charts</li>
+                                <li>Font Awesome icons</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Contact & Support</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        This project was developed as an academic research initiative to demonstrate 
+                        sentiment analysis using lexicon-based approaches.
+                    </p>
+                    <p>
+                        <strong>Project Type:</strong> Academic Research Project<br>
+                        <strong>Version:</strong> 1.0.0<br>
+                        <strong>Year:</strong> 2024
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

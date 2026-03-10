@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Results - Comment Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-poll text-info"></i> Detailed Analysis Results
+            </h2>
+
+            {% if error %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <p class="mt-2 mb-0">
+                    <a href="{{ url_for('analyze') }}" class="btn btn-primary">
+                        <i class="fas fa-chart-bar"></i> Run Analysis
+                    </a>
+                </p>
+            </div>
+            {% else %}
+
+            <!-- Summary Statistics -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Summary Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <i class="fas fa-comments fa-2x text-primary mb-2"></i>
+                                <h3>{{ distribution.total }}</h3>
+                                <p class="text-muted">Total Comments</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <i class="fas fa-smile fa-2x text-success mb-2"></i>
+                                <h3>{{ distribution.positive }}</h3>
+                                <p class="text-muted">Positive ({{ distribution.positive_percent }}%)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <i class="fas fa-frown fa-2x text-danger mb-2"></i>
+                                <h3>{{ distribution.negative }}</h3>
+                                <p class="text-muted">Negative ({{ distribution.negative_percent }}%)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box text-center">
+                                <i class="fas fa-meh fa-2x text-secondary mb-2"></i>
+                                <h3>{{ distribution.neutral }}</h3>
+                                <p class="text-muted">Neutral ({{ distribution.neutral_percent }}%)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Distribution Chart</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Count Comparison</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Results Table -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> Complete Results Table</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Filter Controls -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search comments...">
+                        </div>
+                        <div class="col-md-6">
+                            <select id="filterSentiment" class="form-select">
+                                <option value="all">All Sentiments</option>
+                                <option value="Positive">Positive Only</option>
+                                <option value="Negative">Negative Only</option>
+                                <option value="Neutral">Neutral Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Comment</th>
+                                    <th>Sentiment</th>
+                                    <th>Score</th>
+                                    <th>Positive Words</th>
+                                    <th>Negative Words</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                {% for result in results %}
+                                <tr data-sentiment="{{ result.sentiment }}">
+                                    <td>{{ loop.index }}</td>
+                                    <td class="comment-text">{{ result.original_text }}</td>
+                                    <td>
+                                        {% if result.sentiment == 'Positive' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-smile"></i> {{ result.sentiment }}
+                                        </span>
+                                        {% elif result.sentiment == 'Negative' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-frown"></i> {{ result.sentiment }}
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-meh"></i> {{ result.sentiment }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong class="
+                                            {% if result.score > 0 %}text-success
+                                            {% elif result.score < 0 %}text-danger
+                                            {% else %}text-secondary{% endif %}">
+                                            {{ result.score }}
+                                        </strong>
+                                    </td>
+                                    <td><span class="badge bg-success">{{ result.positive_count }}</span></td>
+                                    <td><span class="badge bg-danger">{{ result.negative_count }}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info view-details" 
+                                                data-index="{{ loop.index }}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#detailModal{{ loop.index }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Detail Modal for each result -->
+                                <div class="modal fade" id="detailModal{{ loop.index }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title">Comment #{{ loop.index }} Details</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h6>Original Comment:</h6>
+                                                <div class="alert alert-light">{{ result.original_text }}</div>
+                                                
+                                                <h6>Sentiment Analysis:</h6>
+                                                <ul>
+                                                    <li><strong>Sentiment:</strong> 
+                                                        <span class="badge 
+                                                            {% if result.sentiment == 'Positive' %}bg-success
+                                                            {% elif result.sentiment == 'Negative' %}bg-danger
+                                                            {% else %}bg-secondary{% endif %}">
+                                                            {{ result.sentiment }}
+                                                        </span>
+                                                    </li>
+                                                    <li><strong>Score:</strong> {{ result.score }}</li>
+                                                    <li><strong>Positive Words Count:</strong> {{ result.positive_count }}</li>
+                                                    <li><strong>Negative Words Count:</strong> {{ result.negative_count }}</li>
+                                                </ul>
+
+                                                <h6>Processed Tokens:</h6>
+                                                <div class="word-tags mb-3">
+                                                    {% for token in result.tokens %}
+                                                    <span class="badge bg-secondary me-1 mb-1">{{ token }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-muted mt-3">
+                        <i class="fas fa-info-circle"></i> 
+                        Showing {{ results|length }} results
+                    </p>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if not error %}
+<script>
+    // Create pie chart
+    const pieCtx = document.getElementById('pieChart');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                data: [{{ distribution.positive }}, {{ distribution.negative }}, {{ distribution.neutral }}],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(108, 117, 125, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Create bar chart
+    const barCtx = document.getElementById('barChart');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                label: 'Number of Comments',
+                data: [{{ distribution.positive }}, {{ distribution.negative }}, {{ distribution.neutral }}],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(108, 117, 125, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', filterTable);
+    document.getElementById('filterSentiment').addEventListener('change', filterTable);
+
+    function filterTable() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const sentimentFilter = document.getElementById('filterSentiment').value;
+        const rows = document.querySelectorAll('#resultsTableBody tr');
+
+        rows.forEach(row => {
+            const commentText = row.querySelector('.comment-text').textContent.toLowerCase();
+            const sentiment = row.getAttribute('data-sentiment');
+
+            const matchesSearch = commentText.includes(searchValue);
+            const matchesSentiment = sentimentFilter === 'all' || sentiment === sentimentFilter;
+
+            if (matchesSearch && matchesSentiment) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}
